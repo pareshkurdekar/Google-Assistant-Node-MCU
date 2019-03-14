@@ -6,22 +6,20 @@
 #define Light   D7
 #define Fan     D8
 
-#define WLAN_SSID       "Xender_AP8616"             // Your SSID
-#define WLAN_PASS       "12345678"        // Your password
+#define WLAN_SSID       "xxxxxxx"         // Replace 'x' with your SSID (Hotspot ID)
+#define WLAN_PASS       "xxxxxxx"        // Replace 'x' with your password
 
 /************************* Adafruit.io Setup *********************************/
 
 #define AIO_SERVER      "io.adafruit.com"
-#define AIO_SERVERPORT  1883                   // use 8883 for SSL
-#define AIO_USERNAME    "pareshkurdekar"            // Replace it with your username
+#define AIO_SERVERPORT  1883                                 // use 8883 for SSL
+#define AIO_USERNAME    "pareshkurdekar"                     // Replace it with your username
 #define AIO_KEY         "3c18505c292a4516af25ea29aaafd853"   // Replace with your Project Auth Key
 
 /************ Global State (you don't need to change this!) ******************/
 
-// Create an ESP8266 WiFiClient class to connect to the MQTT server.
+
 WiFiClient client;
-// or... use WiFiFlientSecure for SSL
-//WiFiClientSecure client;
 
 // Setup the MQTT client class by passing in the WiFi client and MQTT server and login details.
 Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
@@ -29,9 +27,9 @@ Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO
 /****************************** Feeds ***************************************/
 
 
-// Setup a feed called 'onoff' for subscribing to changes.
-Adafruit_MQTT_Subscribe switch1 = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME"/feeds/Light"); // FeedName
-Adafruit_MQTT_Subscribe switch2 = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/Fan");
+// Setup a feed called 'Light' and 'Fan' for subscribing to changes.
+Adafruit_MQTT_Subscribe switch1 = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME"/feeds/Light"); // Subscribe to data from the feed 'Light'
+Adafruit_MQTT_Subscribe switch2 = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/Fan");  //Subscribe to data from the feed 'Fan'
 
 
 
@@ -61,7 +59,7 @@ void setup() {
   Serial.println(WiFi.localIP());
 
 
-  // Setup MQTT subscription for onoff feed.
+  // Setup MQTT subscription for swicth1, swicth2 feed.
   mqtt.subscribe(&switch1);
   mqtt.subscribe(&switch2);
 
@@ -77,7 +75,7 @@ void loop() {
 
   Adafruit_MQTT_Subscribe *subscription;
   while ((subscription = mqtt.readSubscription(20000))) {
-    if (subscription == &switch1) {
+    if (subscription == &switch1) {                           // Sets the state of Light according to the data  received
       Serial.print(F("Got: "));
       Serial.println((char *)switch1.lastread);
       int State_1 = atoi((char *)switch1.lastread);
@@ -85,7 +83,7 @@ void loop() {
 
     }
     if (subscription == &switch2) {
-      Serial.print(F("Got: "));
+      Serial.print(F("Got: "));                              // Sets the state of Fan according to the data  received
       Serial.println((char *)switch2.lastread);
       int State_2 = atoi((char *)switch2.lastread);
       digitalWrite(Fan, State_2);
